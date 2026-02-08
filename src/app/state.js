@@ -1,4 +1,4 @@
-export const initialState = {
+export const state = {
   columns: [
     { id: "todo", title: "Todo", cards: ["Learn bundlers", "Build Kanban"] },
     { id: "doing", title: "Doing", cards: ["Write modules"] },
