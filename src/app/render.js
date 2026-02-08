@@ -23,7 +23,6 @@ function renderColumn(col, handlers) {
     { className: "column", "data-col": col.id },
     el("h2", {}, col.title),
 
-    // Add-card UI
     el(
       "form",
       {
@@ -31,13 +30,11 @@ function renderColumn(col, handlers) {
         onSubmit: (e) => {
           e.preventDefault();
 
-          // Read from the form, not document.querySelector
           const input = e.currentTarget.elements.namedItem("text");
           const value = input && "value" in input ? input.value : "";
 
           handlers.onAddCard(col.id, value);
 
-          // Clear input after adding
           if (input && "value" in input) input.value = "";
         },
       },
@@ -51,9 +48,36 @@ function renderColumn(col, handlers) {
 
     el(
       "ul",
-      { className: "cards" },
+      {
+        className: "cards",
+        onClick: (e) => {
+          const deleteBtn = e.target.closest('button[data-action="delete"]');
+          if (!deleteBtn) return;
+
+          const idxStr = deleteBtn.getAttribute("data-idx");
+          const idx = idxStr ? Number(idxStr) : NaN;
+          if (Number.isNaN(idx)) return;
+
+          handlers.onDeleteCard(col.id, idx);
+        }
+      },
       col.cards.map((text, idx) =>
-        el("li", { className: "card", "data-idx": String(idx) }, text)
+        el(
+          "li",
+          { className: "card", "data-idx": String(idx) },
+          el("span", { className: "card-text "}, text),
+          el(
+            "button",
+            {
+              tyle: "button",
+              className: "card-delete",
+              "aria-label": "Delete card",
+              "data-action": "delete",
+              "data-idx": String(idx)
+            },
+            "Delete"
+          )
+        )
       )
     )
   );

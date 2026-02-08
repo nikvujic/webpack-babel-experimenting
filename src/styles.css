@@ -70,3 +70,29 @@ body {
 .add-card button:hover {
   background: rgba(255, 255, 255, 0.18);
 }
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-delete {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.card-delete:hover {
+  background: rgba(255, 255, 255, 0.16);
+}

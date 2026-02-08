@@ -3,7 +3,7 @@ import "./styles.css";
 import { state } from "./app/state.js";
 import { renderApp } from "./app/render.js";
 import { mount } from "./ui/dom.js";
-import { addCard } from "./app/actions.js";
+import { addCard, removeCard } from "./app/actions.js";
 
 const app = document.getElementById("app");
 
@@ -15,6 +15,10 @@ function rerender() {
         addCard(columnId, text);
         rerender();
       },
+      onDeleteCard: (columnId, index) => {
+        removeCard(columnId, index);
+        rerender();
+      }
     })
   );
 }
