@@ -38,3 +38,7 @@ function rerender() {
 rerender();
 
 console.log("App running");
+
+
+const user = { profile: { name: "Ana" } };
+console.log("Name:", user?.profile?.name ?? "Unknown");
