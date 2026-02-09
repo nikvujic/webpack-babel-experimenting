@@ -42,3 +42,4 @@ console.log("App running");
 
 const user = { profile: { name: "Ana" } };
 console.log("Name:", user?.profile?.name ?? "Unknown");
+console.log("Includes:", [1, 2, 3].includes(2));

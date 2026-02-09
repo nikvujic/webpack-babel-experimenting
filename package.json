@@ -3,6 +3,10 @@
     "dev": "webpack serve",
     "build": "webpack"
   },
+  "dependencies": {
+    "core-js": "^3.48.0",
+    "regenerator-runtime": "^0.14.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
@@ -15,7 +19,7 @@
     "webpack-dev-server": "^5.2.3"
   },
   "browserslist": [
-    ">0.5%",
+    ">0.1%",
     "not dead",
     "not op_mini all"
   ]
