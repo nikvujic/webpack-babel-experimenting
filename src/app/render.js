@@ -51,31 +51,65 @@ function renderColumn(col, handlers) {
       {
         className: "cards",
         onClick: (e) => {
-          const deleteBtn = e.target.closest('button[data-action="delete"]');
-          if (!deleteBtn) return;
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
 
-          const idxStr = deleteBtn.getAttribute("data-idx");
+          const action = btn.getAttribute("data-action");
+          const idxStr = btn.getAttribute("data-idx");
           const idx = idxStr ? Number(idxStr) : NaN;
           if (Number.isNaN(idx)) return;
 
-          handlers.onDeleteCard(col.id, idx);
-        }
+          if (action === "delete") {
+            handlers.onDeleteCard(col.id, idx);
+          } else if (action === "move-left") {
+            handlers.onMoveCard(col.id, idx, -1);
+          } else if (action === "move-right") {
+            handlers.onMoveCard(col.id, idx, +1);
+          }
+        },
       },
       col.cards.map((text, idx) =>
         el(
           "li",
           { className: "card", "data-idx": String(idx) },
-          el("span", { className: "card-text "}, text),
+          el("span", { className: "card-text" }, text),
+
           el(
-            "button",
-            {
-              tyle: "button",
-              className: "card-delete",
-              "aria-label": "Delete card",
-              "data-action": "delete",
-              "data-idx": String(idx)
-            },
-            "Delete"
+            "div",
+            { className: "card-actions" },
+            el(
+              "button",
+              {
+                type: "button",
+                className: "card-move",
+                "aria-label": "Move left",
+                "data-action": "move-left",
+                "data-idx": String(idx),
+              },
+              "←"
+            ),
+            el(
+              "button",
+              {
+                type: "button",
+                className: "card-move",
+                "aria-label": "Move right",
+                "data-action": "move-right",
+                "data-idx": String(idx),
+              },
+              "→"
+            ),
+            el(
+              "button",
+              {
+                type: "button",
+                className: "card-delete",
+                "aria-label": "Delete card",
+                "data-action": "delete",
+                "data-idx": String(idx),
+              },
+              "✕"
+            )
           )
         )
       )

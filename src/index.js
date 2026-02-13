@@ -3,8 +3,8 @@ import "./styles.css";
 import { state, setState } from "./app/state.js";
 import { renderApp } from "./app/render.js";
 import { mount } from "./ui/dom.js";
-import { addCard, removeCard } from "./app/actions.js";
-import { loadState, saveState} from "./services/storage.js";
+import { addCard, removeCard, moveCard } from "./app/actions.js";
+import { loadState, saveState } from "./services/storage.js";
 import { isValidState } from "./app/validate.js";
 
 const app = document.getElementById("app");
@@ -30,14 +30,16 @@ function rerender() {
       onDeleteCard: (columnId, index) => {
         removeCard(columnId, index);
         commit();
-      }
+      },
+      onMoveCard: (columnId, index, delta) => {
+        moveCard(columnId, index, delta);
+        commit();
+      },
     })
   );
 }
 
 rerender();
-
-console.log("App running");
 
 
 const user = { profile: { name: "Ana" } };
