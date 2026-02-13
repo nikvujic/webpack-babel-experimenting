@@ -118,10 +118,21 @@ body {
 
 .card:focus {
   outline: 2px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
 }
 
-.card[data-selected="true"] {
+/* .card[data-selected="true"] {
   border-color: rgba(255, 255, 255, 0.35);
   background: rgba(255, 255, 255, 0.14);
+} */
+
+.column--over {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.card[draggable="true"] {
+  cursor: grab;
+}
+.card[draggable="true"]:active {
+  cursor: grabbing;
 }

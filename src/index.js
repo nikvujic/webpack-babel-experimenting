@@ -3,10 +3,11 @@ import "./styles.css";
 import { state, setState } from "./app/state.js";
 import { renderApp } from "./app/render.js";
 import { mount } from "./ui/dom.js";
-import { addCard, removeCard, moveCard } from "./app/actions.js";
+import { addCard, removeCard, moveCard, moveCardToColumn } from "./app/actions.js";
 import { loadState, saveState } from "./services/storage.js";
 import { isValidState } from "./app/validate.js";
 import { uiState, setSelected, clearSelected } from "./app/uiState.js";
+import { dndState, startDrag, endDrag, setOverColumn } from "./app/dndState.js";
 
 const app = document.getElementById("app");
 
@@ -82,6 +83,58 @@ function rerender(shouldRestoreFocus = false) {
 
         setSelected(columnId, nextIdx);
         rerender(true);
+      },
+
+      onDragStart: (columnId, index) => {
+        startDrag(columnId, index);
+        setSelected(columnId, index);
+      },
+
+      onDragEnd: () => {
+        endDrag();
+        rerender(false);
+      },
+
+      onDragOverColumn: (columnId) => {
+        if (dndState.overColumnId !== columnId) {
+          setOverColumn(columnId);
+          rerender(false);
+        }
+      },
+
+      onDragLeaveColumn: (columnId) => {
+        if (dndState.overColumnId === columnId) {
+          setOverColumn(null);
+          rerender(false);
+        }
+      },
+
+      onDropOnColumn: (targetColumnId, raw) => {
+        let payload = null;
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          endDrag();
+          rerender(false);
+          return;
+        }
+
+        if (!payload || typeof payload.columnId !== "string") return;
+        const fromColumnId = payload.columnId;
+        const fromIndex = Number(payload.index);
+
+        endDrag();
+
+        moveCardToColumn(fromColumnId, fromIndex, targetColumnId);
+
+        const targetCol = state.columns.find((c) => c.id === targetColumnId);
+        if (targetCol && targetCol.cards.length > 0) {
+          setSelected(targetColumnId, targetCol.cards.length - 1);
+        } else {
+          clearSelected();
+        }
+
+        commit();
       },
     })
   );

@@ -1,5 +1,6 @@
 import { el } from "../ui/dom.js";
 import { uiState } from "./uiState.js";
+import { dndState } from "./dndState.js";
 
 /**
  * Pure render: given state, return a DOM tree.
@@ -19,11 +20,33 @@ export function renderApp(state, handlers) {
 }
 
 function renderColumn(col, handlers) {
+  const isOver = dndState.overColumnId === col.id;
+  
   return el(
     "section",
-    { className: "column", "data-col": col.id },
-    el("h2", {}, col.title),
+    {
+      className: `column${isOver ? " column--over" : ""}`,
+      "data-col": col.id,
 
+      onDragOver: (e) => {
+        e.preventDefault();
+        handlers.onDragOverColumn(col.id);
+        e.dataTransfer.dropEffect = "move";
+      },
+
+      onDragLeave: (e) => {
+        const leavingTo = e.relatedTarget;
+        if (leavingTo && e.currentTarget.contains(leavingTo)) return;
+        handlers.onDragLeaveColumn(col.id);
+      },
+
+      onDrop: (e) => {
+        e.preventDefault();
+        const raw = e.dataTransfer.getData("application/x-kanban-card");
+        handlers.onDropOnColumn(col.id, raw);
+      },
+    },
+    el("h2", {}, col.title),
     el(
       "form",
       {
@@ -46,7 +69,6 @@ function renderColumn(col, handlers) {
       }),
       el("button", { type: "submit" }, "Add")
     ),
-
     el(
       "ul",
       {
@@ -115,7 +137,22 @@ function renderColumn(col, handlers) {
             "data-idx": String(idx),
             "data-col": col.id,
             "data-selected": isSelected ? "true" : "false",
-            tabindex: isSelected ? "0" : "-1"
+            tabindex: isSelected ? "0" : "-1",
+            draggable: "true",
+            onDragStart: (e) => {
+              e.dataTransfer.effectAllowed = "move";
+
+              e.dataTransfer.setData(
+                "application/x-kanban-card",
+                JSON.stringify({ columnId: col.id, index: idx })
+              );
+
+              handlers.onDragStart(col.id, idx);
+            },
+
+            onDragEnd: () => {
+              handlers.onDragEnd();
+            },
           },
           el("span", { className: "card-text" }, text),
           el(

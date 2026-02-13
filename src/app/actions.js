@@ -34,3 +34,16 @@ export function moveCard(columnId, index, delta) {
   const [card] = fromCol.cards.splice(index, 1);
   toCol.cards.push(card);
 }
+
+export function moveCardToColumn(fromColumnId, fromIndex, toColumnId) {
+  if (fromColumnId === toColumnId) return;
+
+  const fromCol = state.columns.find((c) => c.id === fromColumnId);
+  const toCol = state.columns.find((c) => c.id === toColumnId);
+  if (!fromCol || !toCol) return;
+
+  if (fromIndex < 0 || fromIndex >= fromCol.cards.length) return;
+
+  const [card] = fromCol.cards.splice(fromIndex, 1);
+  toCol.cards.push(card);
+}
