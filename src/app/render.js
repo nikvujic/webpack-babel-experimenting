@@ -1,4 +1,5 @@
 import { el } from "../ui/dom.js";
+import { uiState } from "./uiState.js";
 
 /**
  * Pure render: given state, return a DOM tree.
@@ -52,28 +53,71 @@ function renderColumn(col, handlers) {
         className: "cards",
         onClick: (e) => {
           const btn = e.target.closest("button[data-action]");
-          if (!btn) return;
+          if (btn) {
+            const action = btn.getAttribute("data-action");
+            const idxStr = btn.getAttribute("data-idx");
+            const idx = idxStr ? Number(idxStr) : NaN;
+            if (Number.isNaN(idx)) return;
 
-          const action = btn.getAttribute("data-action");
-          const idxStr = btn.getAttribute("data-idx");
+            if (action === "delete") {
+              handlers.onDeleteCard(col.id, idx);
+            } else if (action === "move-left") {
+              handlers.onMoveCard(col.id, idx, -1);
+            } else if (action === "move-right") {
+              handlers.onMoveCard(col.id, idx, +1);
+            }
+            return;
+          }
+
+          const card = e.target.closest("li.card");
+          if (!card) return;
+
+          const idxStr = card.getAttribute("data-idx");
           const idx = idxStr ? Number(idxStr) : NaN;
           if (Number.isNaN(idx)) return;
 
-          if (action === "delete") {
-            handlers.onDeleteCard(col.id, idx);
-          } else if (action === "move-left") {
+          handlers.onSelectCard(col.id, idx);
+        },
+
+        onKeyDown: (e) => {
+          const card = e.target.closest("li.card");
+          if (!card) return;
+
+          const idxStr = card.getAttribute("data-idx");
+          const idx = idxStr ? Number(idxStr) : NaN;
+          if (Number.isNaN(idx)) return;
+
+          // prevent page scrolling on arrow keys
+          if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+            e.preventDefault();
+          }
+
+          if (e.key === "ArrowLeft") {
             handlers.onMoveCard(col.id, idx, -1);
-          } else if (action === "move-right") {
+          } else if (e.key === "ArrowRight") {
             handlers.onMoveCard(col.id, idx, +1);
+          } else if (e.key === "Delete" || e.key === "Backspace") {
+            handlers.onDeleteCard(col.id, idx);
+          } else if (e.key === "ArrowUp") {
+            handlers.onMoveSelection(col.id, idx, -1);
+          } else if (e.key === "ArrowDown") {
+            handlers.onMoveSelection(col.id, idx, +1);
           }
         },
       },
-      col.cards.map((text, idx) =>
-        el(
-          "li",
-          { className: "card", "data-idx": String(idx) },
-          el("span", { className: "card-text" }, text),
+      col.cards.map((text, idx) => {
+        const isSelected = uiState.selected && uiState.selected.columnId === col.id && uiState.selected.index === idx;
 
+        return el(
+          "li",
+          {
+            className: "card",
+            "data-idx": String(idx),
+            "data-col": col.id,
+            "data-selected": isSelected ? "true" : "false",
+            tabindex: isSelected ? "0" : "-1"
+          },
+          el("span", { className: "card-text" }, text),
           el(
             "div",
             { className: "card-actions" },
@@ -112,7 +156,7 @@ function renderColumn(col, handlers) {
             )
           )
         )
-      )
+      })
     )
   );
 }
